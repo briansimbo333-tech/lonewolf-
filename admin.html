@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LONEWOLF GALLERY - Admin Panel</title>
+    
+    <!-- FONT AWESOME ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* BASE SETUP */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0b0e14;
+            color: #f1f5f9;
+            padding: 10px;
+        }
+
+        /* 1. LOGIN OVERLAY */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 14, 20, 0.98);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            text-align: center;
+            max-width: 330px;
+            width: 90%;
+        }
+
+        .login-box h2 {
+            color: #ef4444;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* ADMIN DASHBOARD CONTAINER */
+        .admin-container {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 15px;
+        }
+
+        .admin-title {
+            color: #f59e0b;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .section-header {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* DASHBOARD GRID LAYOUT */
+        .dashboard-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .dashboard-col {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* SECTION 1: VISITOR & GALLERY ANALYSIS (CYAN) */
+        .stats-section {
+            background: #0f172a;
+            border: 2px solid #06b6d4;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+            padding: 14px;
+            border-radius: 10px;
+            height: 100%;
+        }
+
+        .stats-section .section-header {
+            color: #06b6d4;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #06b6d4;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: #94a3b8;
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+
+        .stat-card .number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* SECTION 2: CUSTOMER ENQUIRIES (AMBER) - IMETENGENEZA LINK KWENDA sms.html */
+        .inbox-section {
+            background: #18150c;
+            border: 2px solid #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .inbox-section a.section-header {
+            text-decoration: none;
+            color: #f59e0b;
+            transition: opacity 0.2s;
+        }
+
+        .inbox-section a.section-header:hover {
+            opacity: 0.8;
+        }
+
+        .email-notice {
+            background: #261f0d;
+            border: 1px dashed #f59e0b;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            color: #fef08a;
+            margin-bottom: 10px;
+        }
+
+        .empty-msg {
+            color: #94a3b8;
+            font-size: 11px;
+            font-style: italic;
+        }
+
+        /* SECTION 3: REGISTERED CUSTOMERS (PURPLE) */
+        .subscribers-section {
+            background: #150f24;
+            border: 2px solid #a855f7;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .subscribers-section a.section-header {
+            text-decoration: none;
+            color: #a855f7;
+            transition: opacity 0.2s;
+        }
+
+        .subscribers-section a.section-header:hover {
+            opacity: 0.8;
+        }
+
+        .subscribers-list {
+            background: #201335;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            max-height: 130px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            border-bottom: 1px solid #3b2759;
+            padding: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .visit-badge {
+            background: #a855f7;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        /* UPLOAD & PUBLISH NEW ARTWORK (GREEN) */
+        .upload-section {
+            background: #061e14;
+            border: 2px solid #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .upload-section .section-header {
+            color: #10b981;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 10px;
+            color: #6ee7b7;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #047857;
+            background: #022c22;
+            color: #ffffff;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .upload-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        /* SECURITY & MANAGE SECTIONS */
+        .security-section {
+            background: #1d0c0c;
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            height: 100%;
+        }
+
+        .security-section .section-header {
+            color: #ef4444;
+        }
+
+        .pin-change-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pin-change-form input {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #7f1d1d;
+            background: #450a0a;
+            color: #ffffff;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .pin-change-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 9px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .manage-section {
+            background: #1e0915;
+            border: 2px solid #ec4899;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            height: 100%;
+        }
+
+        .manage-section .section-header {
+            color: #ec4899;
+        }
+
+        .art-item-card {
+            background: #2d0d22;
+            border: 1px solid #ec4899;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. SECRET LOGIN OVERLAY -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2><i class="fa-solid fa-lock"></i> ADMIN ACCESS</h2>
+            <p style="color: #94a3b8; font-size: 11px; margin-bottom: 12px;">Enter your Admin Name and Secret Password.</p>
+            <form onsubmit="event.preventDefault(); checkPin();">
+                <input type="text" id="adminUsername" placeholder="Admin Username" required>
+                <input type="password" id="pinInput" placeholder="Enter Password" required>
+                <button type="submit">UNLOCK DASHBOARD</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN CONTENT CONTAINER -->
+    <div class="admin-container" id="adminContent">
+        
+        <!-- HEADER -->
+        <header>
+            <div class="admin-title"><i class="fa-solid fa-user-shield"></i> LONEWOLF CONTROL CENTER</div>
+            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </header>
+
+        <!-- DASHBOARD TOP ROW -->
+        <div class="dashboard-row">
+            <!-- LEFT: VISITOR & GALLERY ANALYSIS -->
+            <div class="dashboard-col">
+                <div class="stats-section">
+                    <div class="section-header"><i class="fa-solid fa-chart-line"></i> Visitor & Gallery Analysis</div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h4>TOTAL REGISTERED USERS</h4>
+                            <div class="number" id="totalUsers">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>TOTAL ARTWORKS</h4>
+                            <div class="number" id="totalArts">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>AVAILABLE FOR SALE</h4>
+                            <div class="number" id="availableArts">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>SOLD OUT</h4>
+                            <div class="number" id="soldArts">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: CUSTOMER ENQUIRIES & REGISTERED CUSTOMERS -->
+            <div class="dashboard-col">
+                <!-- CUSTOMER ENQUIRIES (SASA INA LINK KWENDA sms.html) -->
+                <div class="inbox-section">
+                    <a href="sms.html" class="section-header">
+                        <i class="fa-solid fa-envelope"></i> Customer Enquiries <i class="fa-solid fa-arrow-right" style="font-size: 10px; margin-left: auto;"></i>
+                    </a>
+                    <div class="email-notice">
+                        <i class="fa-solid fa-circle-info"></i> Click to open inbox & reply messages.
+                    </div>
+                    <div class="empty-msg" id="enquiryPreview">No new messages yet.</div>
+                </div>
+
+                <!-- REGISTERED CUSTOMERS -->
+                <div class="subscribers-section">
+                    <a href="regcust.html" class="section-header">
+                        <i class="fa-solid fa-users"></i> Registered Customers <i class="fa-solid fa-arrow-right" style="font-size: 10px; margin-left: auto;"></i>
+                    </a>
+                    <div class="subscribers-list" id="usersList">
+                        <div class="empty-msg">Loading users...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPLOAD & PUBLISH NEW ARTWORK -->
+        <div class="upload-section">
+            <div class="section-header"><i class="fa-solid fa-cloud-arrow-up"></i> Upload & Publish New Artwork</div>
+            <form id="uploadForm" onsubmit="event.preventDefault(); handleUpload();">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Artwork Image File</label>
+                        <input type="file" id="artImage" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Artwork Title</label>
+                        <input type="text" id="artTitle" placeholder="e.g., Hyper-Realistic Eye Study" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="artCategory">
+                            <option value="Portrait">Portrait</option>
+                            <option value="Still Life">Still Life</option>
+                            <option value="Commissioned Work">Commissioned Work</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Size / Medium</label>
+                        <input type="text" id="artSize" placeholder="e.g., A3 - Charcoal on Manila Paper" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (TZS or USD)</label>
+                        <input type="text" id="artPrice" placeholder="e.g., 150,000 TZS / $60" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Availability Status</label>
+                        <select id="artStatus">
+                            <option value="Available">Available for Sale</option>
+                            <option value="Sold Out">Sold Out</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description / Story behind artwork</label>
+                    <textarea id="artDesc" rows="2" placeholder="Brief details about charcoal shading techniques..."></textarea>
+                </div>
+                <button type="submit" class="upload-btn" id="submitBtn"><i class="fa-solid fa-paper-plane"></i> PUBLISH TO LIVE GALLERY</button>
+            </form>
+        </div>
+
+        <!-- BOTTOM ROW -->
+        <div class="dashboard-row">
+            <!-- CHANGE CREDENTIALS -->
+            <div class="dashboard-col">
+                <div class="security-section">
+                    <div class="section-header"><i class="fa-solid fa-key"></i> Change Admin Credentials</div>
+                    <div class="pin-change-form">
+                        <input type="text" id="newAdminUsername" placeholder="New Admin Username">
+                        <input type="password" id="newPinInput" placeholder="New Admin Password">
+                        <button class="pin-change-btn" onclick="changeCredentials()"><i class="fa-solid fa-shield-halved"></i> Update Credentials</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MANAGE LIVE ARTWORKS -->
+            <div class="dashboard-col">
+                <div class="manage-section">
+                    <div class="section-header"><i class="fa-solid fa-list-check"></i> Manage Live Artworks</div>
+                    <div id="artworksList" style="max-height: 150px; overflow-y: auto;">
+                        <div class="empty-msg">Loading live artworks...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SUPABASE SDK LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentAdmin = localStorage.getItem("admin_username") || "Brian";
+        let currentPin = localStorage.getItem("admin_pin") || "1234";
+
+        const SUPABASE_URL = 'https://uywloserbehvqzaezcjs.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_86S_JV6gy_AOpUxhlFd_ow_AhW5xj6a';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function checkPin() {
+            const user = document.getElementById("adminUsername").value;
+            const input = document.getElementById("pinInput").value;
+            
+            if (user === currentAdmin && input === currentPin) {
+                document.getElementById("loginOverlay").style.display = "none";
+                document.getElementById("adminContent").style.display = "block";
+                fetchArtworks();
+                fetchUsers();
+            } else {
+                alert("Incorrect Username or Password! Access Denied.");
+            }
+        }
+
+        function changeCredentials() {
+            const newUser = document.getElementById("newAdminUsername").value;
+            const newPin = document.getElementById("newPinInput").value;
+            
+            if (newUser.trim() === "" || newPin.trim() === "") {
+                alert("Please enter both a valid Username and Password!");
+                return;
+            }
+            
+            currentAdmin = newUser;
+            currentPin = newPin;
+            localStorage.setItem("admin_username", newUser);
+            localStorage.setItem("admin_pin", newPin);
+            
+            alert("Admin credentials updated successfully!");
+            document.getElementById("newAdminUsername").value = "";
+            document.getElementById("newPinInput").value = "";
+        }
+
+        function logout() {
+            document.getElementById("loginOverlay").style.display = "flex";
+            document.getElementById("adminContent").style.display = "none";
+            document.getElementById("adminUsername").value = "";
+            document.getElementById("pinInput").value = "";
+        }
+
+        async function fetchUsers() {
+            const { data, error } = await supabaseClient
+                .from('users')
+                .select('*');
+
+            if (error) {
+                console.error("Error loading users:", error);
+                document.getElementById("usersList").innerHTML = '<div class="empty-msg">Error loading users.</div>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                document.getElementById("totalUsers").innerText = 0;
+                document.getElementById("usersList").innerHTML = '<div class="empty-msg">No registered users yet.</div>';
+                return;
+            }
+
+            const userMap = {};
+            data.forEach(user => {
+                const email = user.email ? user.email.toLowerCase().trim() : 'no-email';
+                if (!userMap[email]) {
+                    userMap[email] = {
+                        full_name: user.full_name || 'Anonymous',
+                        email: user.email || 'No Email',
+                        count: 1
+                    };
+                } else {
+                    userMap[email].count += 1;
+                }
+            });
+
+            const uniqueUsers = Object.values(userMap);
+            document.getElementById("totalUsers").innerText = uniqueUsers.length;
+
+            const listContainer = document.getElementById("usersList");
+            let html = "";
+            uniqueUsers.forEach(u => {
+                html += `
+                    <div class="user-item">
+                        <div>
+                            <strong style="color: #a855f7;">${u.full_name}</strong><br>
+                            <span style="color: #cbd5e1; font-size: 10px;">${u.email}</span>
+                        </div>
+                        <div class="visit-badge" title="Idadi ya mara alizoingia">
+                            ${u.count}
+                        </div>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        async function handleUpload() {
+            const title = document.getElementById("artTitle").value;
+            const category = document.getElementById("artCategory").value;
+            const size = document.getElementById("artSize").value;
+            const price = document.getElementById("artPrice").value;
+            const status = document.getElementById("artStatus").value;
+            const description = document.getElementById("artDesc").value;
+            const fileInput = document.getElementById("artImage");
+            const submitBtn = document.getElementById("submitBtn");
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Tafadhali chagua picha kwanza!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+            submitBtn.innerText = "UPLOADING TO STORAGE...";
+            submitBtn.disabled = true;
+
+            try {
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('artworks')
+                    .upload(fileName, file);
+
+                if (uploadError) {
+                    throw new Error("Imefeli ku-upload picha kwenye Storage: " + uploadError.message);
+                }
+
+                const { data: publicUrlData } = supabaseClient
+                    .storage
+                    .from('artworks')
+                    .getPublicUrl(fileName);
+
+                const imageUrl = publicUrlData.publicUrl;
+
+                submitBtn.innerText = "SAVING TO DATABASE...";
+
+                const { data, error: insertError } = await supabaseClient
+                    .from('artworks')
+                    .insert([
+                        {
+                            title: title,
+                            category: category,
+                            size: size,
+                            price: price,
+                            status: status,
+                            description: description,
+                            image_url: imageUrl
+                        }
+                    ]);
+
+                if (insertError) {
+                    throw new Error("Imefeli kuhifadhi taarifa: " + insertError.message);
+                }
+
+                alert("Hongera! Mchoro wa '" + title + "' umepakiwa kikamilifu!");
+                document.getElementById("uploadForm").reset();
+                fetchArtworks();
+
+            } catch (err) {
+                alert("Kosa: " + err.message);
+            } finally {
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> PUBLISH TO LIVE GALLERY';
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function fetchArtworks() {
+            const { data, error } = await supabaseClient
+                .from('artworks')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Error loading artworks:", error);
+                return;
+            }
+
+            const total = data ? data.length : 0;
+            const available = data ? data.filter(item => item.status === "Available").length : 0;
+            const sold = data ? data.filter(item => item.status === "Sold Out").length : 0;
+
+            document.getElementById("totalArts").innerText = total;
+            document.getElementById("availableArts").innerText = available;
+            document.getElementById("soldArts").innerText = sold;
+
+            const listContainer = document.getElementById("artworksList");
+            if (!data || data.length === 0) {
+                listContainer.innerHTML = '<div class="empty-msg">No uploaded artworks found in database.</div>';
+                return;
+            }
+
+            let html = "";
+            data.forEach(art => {
+                html += `
+                    <div class="art-item-card">
+                        <div>
+                            <strong style="color: #ec4899; font-size: 11px;">${art.title}</strong><br>
+                            <span style="color: #10b981; font-size: 10px;">${art.price} | ${art.status}</span>
+                        </div>
+                        <button class="delete-btn" onclick="deleteArtwork(${art.id})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        async function deleteArtwork(id) {
+            if (confirm("Je, una uhakika unataka kufuta mchoro huu kabisa?")) {
+                const { error } = await supabaseClient
+                    .from('artworks')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert("Imefeli kufuta: " + error.message);
+                } else {
+                    alert("Mchoro umefutwa kikamilifu!");
+                    fetchArtworks();
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>

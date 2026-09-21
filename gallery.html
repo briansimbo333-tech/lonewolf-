@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LONEWOLF ART GALLERY - Exhibition Gallery</title>
+    
+    <!-- FONT AWESOME ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SUPABASE JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* LUXURY DARK THEME */
+        body {
+            background-color: #0a0a0c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* HEADER & NAVIGATION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d3748;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+        }
+
+        .logo-title {
+            color: #e2e8f0;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            color: #a0aec0;
+            text-decoration: none;
+            margin-left: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            color: #d4af37;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 4px;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            color: #f7fafc;
+            font-size: 22px;
+            margin: 0 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* SCROLL INSTRUCTION WITH ANIMATED EMOJI */
+        .scroll-instruction {
+            color: #a0aec0;
+            font-size: 13px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .hand-slide {
+            display: inline-block;
+            font-size: 18px;
+            animation: slideHand 1.5s infinite ease-in-out;
+        }
+
+        @keyframes slideHand {
+            0% { transform: translateX(-6px); }
+            50% { transform: translateX(6px); }
+            100% { transform: translateX(-6px); }
+        }
+
+        /* HORIZONTAL SCROLL GALLERY CONTAINER */
+        .horizontal-gallery-wrapper {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 15px 5px 25px 5px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            min-height: 200px;
+            margin-bottom: 30px;
+        }
+
+        .horizontal-gallery-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .horizontal-gallery-wrapper::-webkit-scrollbar-track {
+            background: #1a202c;
+            border-radius: 10px;
+        }
+
+        .horizontal-gallery-wrapper::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 10px;
+        }
+
+        /* ART CARD IMEONDOLEWA FRAME YA GIZA NA KUWA HALISI */
+        .art-card-horizontal {
+            flex: 0 0 280px;
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .art-card-horizontal img {
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+            border-radius: 8px;
+            background-color: #000;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .art-card-horizontal img:hover {
+            transform: scale(1.02);
+        }
+
+        .art-details {
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        /* ART TITLE (GOLD COLOR) */
+        .art-details h4 {
+            color: #d4af37;
+            font-size: 16px;
+            margin: 0 0 4px 0;
+            font-weight: bold;
+        }
+
+        .art-meta {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        /* DESCRIPTION */
+        .art-details .desc-sw {
+            color: #e2e8f0;
+            font-size: 13px;
+            margin: 0 0 8px 0;
+            line-height: 1.4;
+        }
+
+        .art-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .price-tag {
+            color: #10b981;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .status-available {
+            background-color: #065f46;
+            color: #34d399;
+        }
+
+        .status-sold {
+            background-color: #881337;
+            color: #fecdd3;
+        }
+
+        /* WHATSAPP ORDER BUTTON */
+        .btn-order {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #25D366;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-order:hover {
+            background-color: #1eb954;
+        }
+
+        .no-artworks {
+            width: 100%;
+            text-align: center;
+            color: #a0aec0;
+            font-size: 14px;
+            padding: 40px 0;
+        }
+
+        /* --- CUSTOMER ENQUIRY / CONTACT FORM --- */
+        .enquiry-container {
+            background: #14171d;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 30px auto;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .enquiry-container h3 {
+            color: #d4af37;
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .enquiry-container p {
+            color: #94a3b8;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .form-group-client {
+            margin-bottom: 14px;
+        }
+
+        .form-group-client label {
+            display: block;
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .form-group-client input, 
+        .form-group-client textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #2d3748;
+            background: #0a0a0c;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-group-client input:focus, 
+        .form-group-client textarea:focus {
+            border-color: #d4af37;
+        }
+
+        .btn-send-enquiry {
+            background: #d4af37;
+            color: #0a0a0c;
+            border: none;
+            padding: 11px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .btn-send-enquiry:hover {
+            background: #c5a028;
+        }
+
+        /* LIGHTBOX MODAL FOR ZOOM */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            max-width: 95%;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+            object-fit: contain;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: #e2e8f0;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #4a5568;
+            font-size: 12px;
+            border-top: 1px solid #1a202c;
+            padding-top: 15px;
+        }
+
+        .admin-secret-link {
+            color: inherit;
+            text-decoration: none;
+            font-size: 11px;
+            margin-left: 5px;
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .admin-secret-link:hover {
+            opacity: 1;
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION HEADER -->
+    <header>
+        <div class="logo-title">LONEWOLF</div>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="gallery.html" class="active">Gallery</a>
+            <a href="owner.html">Owner</a>
+        </nav>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h2>Exhibition Gallery</h2>
+        <p class="scroll-instruction">
+            <span class="hand-slide">👉</span> Scroll left or right to explore artworks <span class="hand-slide">👈</span>
+        </p>
+    </div>
+
+    <!-- HORIZONTAL SCROLL GALLERY CONTAINER -->
+    <div class="horizontal-gallery-wrapper" id="galleryContainer">
+        <div class="no-artworks"><i class="fa-solid fa-spinner fa-spin"></i> Loading artworks...</div>
+    </div>
+
+    <!-- CUSTOMER ENQUIRY / CONTACT FORM -->
+    <div class="enquiry-container">
+        <h3><i class="fa-solid fa-envelope-open-text"></i> Send an Inquiry or Feedback</h3>
+        <p>Have a question about a specific artwork or want to request a custom portrait commission? Drop us a message below.</p>
+        
+        <form id="enquiryForm" onsubmit="event.preventDefault(); submitEnquiry();">
+            <div class="form-group-client">
+                <label>Your Name</label>
+                <input type="text" id="clientName" placeholder="Enter your full name..." required>
+            </div>
+            <div class="form-group-client">
+                <label>Email Address</label>
+                <input type="email" id="clientEmail" placeholder="client@example.com" required>
+            </div>
+            <div class="form-group-client">
+                <label>Your Message / Inquiry</label>
+                <textarea id="clientMessage" rows="3" placeholder="Type your message or commission request here..." required></textarea>
+            </div>
+            <button type="submit" class="btn-send-enquiry" id="sendEnquiryBtn">
+                <i class="fa-solid fa-paper-plane"></i> Send Message
+            </button>
+        </form>
+    </div>
+
+    <!-- ZOOM MODAL -->
+    <div id="zoomModal" class="image-modal" onclick="closeZoomModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <footer>
+        <p>
+            &copy; 2026 Lonewolf Art Gallery. All rights reserved.
+            <a href="admin.html" class="admin-secret-link" title="Admin Access">🔒</a>
+        </p>
+    </footer>
+
+    <!-- JAVASCRIPT SECTION -->
+    <script>
+        // SUPABASE CREDENTIALS
+        const SUPABASE_URL = "https://uywloserbehvqzaezcjs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_86S_JV6gy_AOpUxhlFd_ow_AhW5xj6a";
+
+        // INITIALIZE SUPABASE CLIENT
+        let supabaseClient = null;
+        if (typeof supabase !== "undefined") {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        async function loadGalleryArtworks() {
+            const container = document.getElementById("galleryContainer");
+            
+            if (!supabaseClient) {
+                container.innerHTML = '<div class="no-artworks">Error connecting to Supabase SDK.</div>';
+                return;
+            }
+
+            try {
+                const { data: artworks, error } = await supabaseClient
+                    .from('artworks')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error("Supabase Error:", error);
+                    container.innerHTML = '<div class="no-artworks">Unable to load gallery right now.</div>';
+                    return;
+                }
+
+                if (!artworks || artworks.length === 0) {
+                    container.innerHTML = '<div class="no-artworks">No artworks published yet. Please check back soon!</div>';
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                artworks.forEach(art => {
+                    const encodedTitle = encodeURIComponent(art.title || "Artwork");
+                    const waLink = `https://wa.me/255754494949?text=Hello%20Lonewolf!%20I%20would%20like%20to%20order%20the%20artwork%20titled%20${encodedTitle}`;
+                    
+                    const isSold = art.status === "Sold Out";
+                    const statusClass = isSold ? "status-sold" : "status-available";
+                    const statusText = art.status || "Available";
+
+                    const artCard = `
+                        <div class="art-card-horizontal">
+                            <img src="${art.image_url}" alt="${art.title}" onclick="openZoomModal('${art.image_url}')" onerror="this.src='https://via.placeholder.com/280x340?text=Image+Unavailable'">
+                            <div class="art-details">
+                                <h4>${art.title || 'Untitled Artwork'}</h4>
+                                <div class="art-meta">${art.category || 'Artwork'} ${art.size ? '• ' + art.size : ''}</div>
+                                <p class="desc-sw">${art.description || ''}</p>
+                                <div class="art-price-row">
+                                    <span class="price-tag">${art.price || ''}</span>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                            </div>
+                            <a href="${waLink}" target="_blank" class="btn-order">
+                                <i class="fa-brands fa-whatsapp"></i> Order Artwork
+                            </a>
+                        </div>
+                    `;
+                    container.innerHTML += artCard;
+                });
+
+            } catch (err) {
+                console.error("Error fetching gallery artworks:", err);
+                container.innerHTML = '<div class="no-artworks">No artworks published yet. Please check back soon!</div>';
+            }
+        }
+
+        // SUBMIT CUSTOMER ENQUIRY TO SUPABASE
+        async function submitEnquiry() {
+            const name = document.getElementById("clientName").value.trim();
+            const email = document.getElementById("clientEmail").value.trim();
+            const message = document.getElementById("clientMessage").value.trim();
+            const btn = document.getElementById("sendEnquiryBtn");
+
+            if (!name || !email || !message) {
+                alert("Please fill in all required fields!");
+                return;
+            }
+
+            btn.innerText = "SENDING...";
+            btn.disabled = true;
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('enquiries')
+                    .insert([
+                        {
+                            name: name,
+                            email: email,
+                            message: message
+                        }
+                    ]);
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                alert("Thank you! Your message has been successfully sent to LoneWolf Gallery.");
+                document.getElementById("enquiryForm").reset();
+
+            } catch (err) {
+                alert("Failed to send message. Please try again. (Error: " + err.message + ")");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Message';
+                btn.disabled = false;
+            }
+        }
+
+        function openZoomModal(imageSrc) {
+            var modal = document.getElementById("zoomModal");
+            var modalImg = document.getElementById("modalImg");
+            modal.style.display = "flex";
+            modalImg.src = imageSrc;
+        }
+
+        function closeZoomModal() {
+            document.getElementById("zoomModal").style.display = "none";
+        }
+
+        document.addEventListener("DOMContentLoaded", loadGalleryArtworks);
+    </script>
+
+</body>
+</html>

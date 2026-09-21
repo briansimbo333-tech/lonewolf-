@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LONEWOLF ADMIN - Registered Customers</title>
+    
+    <!-- FONT AWESOME ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SUPABASE JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* LUXURY DARK THEME */
+        body {
+            background-color: #0a0a0c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* HEADER & NAVIGATION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d3748;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+        }
+
+        .logo-title {
+            color: #e2e8f0;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            color: #a0aec0;
+            text-decoration: none;
+            margin-left: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            color: #d4af37;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 4px;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            color: #f7fafc;
+            font-size: 22px;
+            margin: 0 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .page-header p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* STATS COUNTER */
+        .stats-box {
+            background-color: #14171d;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 20px auto;
+        }
+
+        .stats-box h3 {
+            color: #d4af37;
+            font-size: 24px;
+            margin: 0 0 5px 0;
+        }
+
+        .stats-box span {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CUSTOMERS LIST CONTAINER */
+        .customers-container {
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* INDIVIDUAL CUSTOMER CARD */
+        .customer-card {
+            background-color: #14171d;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.3s ease;
+        }
+
+        .customer-card:hover {
+            border-color: #d4af37;
+        }
+
+        .customer-info h4 {
+            color: #d4af37;
+            font-size: 15px;
+            margin: 0 0 4px 0;
+        }
+
+        .customer-info p {
+            color: #94a3b8;
+            font-size: 12px;
+            margin: 2px 0;
+        }
+
+        .customer-location {
+            color: #38bdf8 !important; /* Rangi ya bluu nyepesi kuvutia kwa ajili ya eneo */
+            font-weight: bold;
+        }
+
+        .customer-stats {
+            text-align: right;
+        }
+
+        .visit-badge {
+            background-color: #d4af37;
+            color: #0a0a0c;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .customer-date {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .no-customers {
+            text-align: center;
+            color: #a0aec0;
+            font-size: 14px;
+            padding: 50px 0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #4a5568;
+            font-size: 12px;
+            border-top: 1px solid #1a202c;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION HEADER -->
+    <header>
+        <div class="logo-title">LONEWOLF ADMIN</div>
+        <nav>
+            <a href="admin.html">Dashboard</a>
+            <a href="sms.html">Messages</a>
+            <a href="regcust.html" class="active">Customers</a>
+            <a href="gallery.html" target="_blank">Gallery</a>
+        </nav>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h2>Registered Customers</h2>
+        <p>List of unique registered users, locations, and visit frequencies.</p>
+    </div>
+
+    <!-- TOTAL STATS -->
+    <div class="stats-box">
+        <h3 id="totalCount">0</h3>
+        <span>Total Registered Users</span>
+    </div>
+
+    <!-- CUSTOMERS LIST CONTAINER -->
+    <div class="customers-container" id="customersContainer">
+        <div class="no-customers"><i class="fa-solid fa-spinner fa-spin"></i> Loading users...</div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Lonewolf Art Gallery. Admin Panel.</p>
+    </footer>
+
+    <!-- JAVASCRIPT SECTION -->
+    <script>
+        // SUPABASE CREDENTIALS
+        const SUPABASE_URL = "https://uywloserbehvqzaezcjs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_86S_JV6gy_AOpUxhlFd_ow_AhW5xj6a";
+
+        let supabaseClient = null;
+        if (typeof supabase !== "undefined") {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        async function loadRegisteredUsers() {
+            const container = document.getElementById("customersContainer");
+            const totalCountEl = document.getElementById("totalCount");
+            
+            if (!supabaseClient) {
+                container.innerHTML = '<div class="no-customers">Error connecting to Supabase SDK.</div>';
+                return;
+            }
+
+            try {
+                const { data: users, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error("Supabase Error:", error);
+                    container.innerHTML = '<div class="no-customers">Unable to load users.</div>';
+                    totalCountEl.innerText = "0";
+                    return;
+                }
+
+                if (!users || users.length === 0) {
+                    container.innerHTML = '<div class="no-customers">No registered customers found yet.</div>';
+                    totalCountEl.innerText = "0";
+                    return;
+                }
+
+                // KUUNGANISHA (GROUP) KWA EMAIL ILI ISIJIJULIKANE MARA MBILI NA KUCHUKUA TAARIFA
+                const uniqueUsersMap = {};
+                users.forEach(user => {
+                    const emailKey = user.email ? user.email.toLowerCase().trim() : 'no-email';
+                    if (!uniqueUsersMap[emailKey]) {
+                        uniqueUsersMap[emailKey] = {
+                            name: user.full_name || user.name || 'Brian',
+                            email: user.email || 'No Email',
+                            location: user.location || 'Unknown Location',
+                            visits: 0,
+                            joined: user.created_at
+                        };
+                    }
+                    uniqueUsersMap[emailKey].visits += 1; // Inahesabu mara ngapi kajirudia
+                });
+
+                const uniqueUsersArray = Object.values(uniqueUsersMap);
+
+                // Inaweka jumla sahihi ya wateja wa kipekee
+                totalCountEl.innerText = uniqueUsersArray.length;
+                container.innerHTML = "";
+
+                uniqueUsersArray.forEach(user => {
+                    let formattedDate = "Recent";
+                    if (user.joined) {
+                        let dateObj = new Date(user.joined);
+                        formattedDate = dateObj.toLocaleDateString();
+                    }
+
+                    const customerCard = `
+                        <div class="customer-card">
+                            <div class="customer-info">
+                                <h4><i class="fa-solid fa-user"></i> ${user.name}</h4>
+                                <p><i class="fa-solid fa-envelope"></i> ${user.email}</p>
+                                <p class="customer-location"><i class="fa-solid fa-location-dot"></i> ${user.location}</p>
+                            </div>
+                            <div class="customer-stats">
+                                <div class="visit-badge"><i class="fa-solid fa-rotate-right"></i> Visits: ${user.visits}</div>
+                                <div class="customer-date">Joined: ${formattedDate}</div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += customerCard;
+                });
+
+            } catch (err) {
+                console.error("Error fetching users:", err);
+                container.innerHTML = '<div class="no-customers">No users found.</div>';
+                totalCountEl.innerText = "0";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadRegisteredUsers);
+    </script>
+
+</body>
+</html>

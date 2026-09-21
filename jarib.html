@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LONEWOLF ART GALLERY - Home</title>
+    
+    <!-- FONT AWESOME ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SUPABASE JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+        }
+
+        /* HEADER & NAVIGATION LINKS */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .logo-title {
+            color: #d4af37;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin-left: 12px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #d4af37;
+        }
+
+        /* HERO / WELCOME BANNER */
+        .hero-section {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #d4af37;
+        }
+
+        .hero-section h3 {
+            color: #d4af37;
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .hero-section p {
+            line-height: 1.5;
+            color: #ddd;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        /* SWAHILI FIFI (FADED SWAHILI TEXT) */
+        .swahili-faded {
+            color: #777777;
+            font-size: 12px;
+            font-style: italic;
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* SHOWCASE SECTION */
+        .section-title {
+            color: #d4af37;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            font-size: 16px;
+        }
+
+        .showcase-container {
+            display: flex;
+            justify-content: center;
+            padding: 10px 0 20px 0;
+        }
+
+        /* IMEONDOLEWA FRAME YA GIZA NA KUFANYWA KUWA HALISI */
+        .showcase-card {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            width: 280px;
+            border: none;
+            text-align: left;
+            box-shadow: none;
+        }
+
+        .showcase-card img {
+            width: 100%;
+            height: 320px;
+            object-fit: contain;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: #000;
+            transition: transform 0.3s ease;
+        }
+
+        .showcase-card img:hover {
+            transform: scale(1.02);
+        }
+
+        /* TITLE IMEFANYWA KUWA HERUFI KUBWA NA KUKAA KUSHOTO CHINI YA PICHA */
+        .showcase-card h4 {
+            color: #d4af37;
+            margin: 10px 0 5px 0;
+            font-size: 15px;
+            text-transform: uppercase;
+            text-align: left;
+            letter-spacing: 0.5px;
+        }
+
+        /* HUDUMA ZETU / OUR SERVICES */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .service-box {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .service-box h4 {
+            color: #d4af37;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .service-box p {
+            font-size: 13px;
+            color: #ddd;
+            margin: 0 0 5px 0;
+        }
+
+        /* MAWASILIANO NA MITANDAO YA KIJAMII */
+        .contact-box {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        .contact-info {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .contact-info a {
+            color: #d4af37;
+            text-decoration: none;
+        }
+
+        /* ICONS ZILIZOPANGWA KWA ULALO (HORIZONTALLY) */
+        .social-icons-horizontal {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 13px;
+            transition: transform 0.2s ease;
+        }
+
+        .social-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* RANGI ZA KILA MTANDAO */
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .btn-youtube { background-color: #FF0000; }
+        .btn-tiktok { background-color: #000000; border: 1px solid #333; }
+
+        /* IMAGE ZOOM MODAL (LIGHTBOX) */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 8px;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .image-modal .caption {
+            color: #d4af37;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .image-modal .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: #ffffff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .image-modal .close-btn:hover {
+            color: #d4af37;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. HEADER WITH DIRECT LINKS TO OTHER FILES -->
+    <header>
+        <div class="logo-title">LONEWOLF</div>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="owner.html">Owner</a>
+        </nav>
+    </header>
+
+    <!-- 2. WELCOME BANNER (ENGLISH + FADED SWAHILI) -->
+    <div class="hero-section">
+        <h3>Welcome to Lonewolf Creative Art Gallery</h3>
+        <p>
+            Discover authentic charcoal drawings and hyper-realism portraits crafted with utmost precision.
+            <span class="swahili-faded">Gundua michoro halisi ya mkaa na Hyper-Realism portraits zilizotengenezwa kwa umakini wa hali ya juu.</span>
+        </p>
+    </div>
+
+    <!-- 3. DYNAMIC FEATURED SHOWCASE (AUTOMATIC FROM DATABASE) -->
+    <h3 class="section-title">Featured Showcase</h3>
+    <div class="showcase-container" id="featuredContainer">
+        <div class="showcase-card" style="text-align: center; padding: 20px; color: #777;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 8px;"></i>
+            <p style="margin:0; font-size: 13px;">Loading featured artwork...</p>
+        </div>
+    </div>
+
+    <!-- 4. OUR SERVICES (ENGLISH + FADED SWAHILI) -->
+    <h3 class="section-title">Our Services</h3>
+    <div class="services-grid">
+        <div class="service-box">
+            <h4>Custom Portraits</h4>
+            <p>Custom portrait drawings crafted with hyper-realism precision.</p>
+            <span class="swahili-faded">Michoro ya sura binafsi kwa umakini.</span>
+        </div>
+        <div class="service-box">
+            <h4>Charcoal Artwork</h4>
+            <p>Premium charcoal artwork on high-quality paper materials.</p>
+            <span class="swahili-faded">Michoro ya mkaa kwenye karatasi za ubora.</span>
+        </div>
+        <div class="service-box">
+            <h4>International Shipping</h4>
+            <p>Worldwide secure delivery options for all art pieces.</p>
+            <span class="swahili-faded">Tunasafirisha michoro hadi nje ya nchi.</span>
+        </div>
+    </div>
+
+    <!-- 5. CONTACT & SOCIAL MEDIA -->
+    <div class="contact-box">
+        <h3 style="color: #d4af37; margin: 0 0 10px 0; font-size: 16px;">Want a Custom Drawing?</h3>
+        <span class="swahili-faded" style="margin-bottom: 10px;">Unahitaji mchoro wako maalum?</span>
+        
+        <div class="contact-info">
+            <p><i class="fa-solid fa-envelope"></i> Email: <a href="mailto:briansimbo333@gmail.com">briansimbo333@gmail.com</a></p>
+        </div>
+
+        <!-- SOCIAL ICONS -->
+        <div class="social-icons-horizontal">
+            <a href="https://wa.me/255754494949" target="_blank" class="social-btn btn-whatsapp">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+
+            <a href="https://www.instagram.com/noone33989?stkn=MWN6ZjVlZjFhaXg4dA==" target="_blank" class="social-btn btn-instagram">
+                <i class="fa-brands fa-instagram"></i> Instagram
+            </a>
+
+            <a href="https://youtube.com/@brianerick-arts?si=k5GGhYR96l7fC-p-" target="_blank" class="social-btn btn-youtube">
+                <i class="fa-brands fa-youtube"></i> YouTube
+            </a>
+
+            <a href="https://www.tiktok.com/@brianartstudio1?_r=1&_t=ZS-99pwmL2oHSP" target="_blank" class="social-btn btn-tiktok">
+                <i class="fa-brands fa-tiktok"></i> TikTok
+            </a>
+        </div>
+    </div>
+
+    <!-- ZOOM MODAL POPUP -->
+    <div id="imageModal" class="image-modal" onclick="closeZoom()">
+        <span class="close-btn" onclick="closeZoom()">&times;</span>
+        <img id="modalImg" src="" alt="Zoomed Image">
+        <div id="modalCaption" class="caption"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Lonewolf Art Gallery. All rights reserved.</p>
+    </footer>
+
+    <!-- JAVASCRIPT FOR SUPABASE & IMAGE ZOOM -->
+    <script>
+        // SUPABASE CREDENTIALS
+        const SUPABASE_URL = "https://uywloserbehvqzaezcjs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_86S_JV6gy_AOpUxhlFd_ow_AhW5xj6a";
+
+        let supabaseClient = null;
+        if (typeof supabase !== "undefined") {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // LOAD RANDOM FEATURED ARTWORK FROM DATABASE AUTOMATICALLY
+        async function loadFeaturedArtwork() {
+            const container = document.getElementById("featuredContainer");
+            
+            if (!supabaseClient) {
+                container.innerHTML = '<p style="color:#777; font-size:13px; text-align:center;">Database connection error.</p>';
+                return;
+            }
+
+            try {
+                // Inachukua michoro kutoka database
+                const { data: artworks, error } = await supabaseClient
+                    .from('artworks')
+                    .select('*');
+
+                if (error || !artworks || artworks.length === 0) {
+                    container.innerHTML = '<p style="color:#777; font-size:13px; text-align:center;">No artwork available in gallery yet.</p>';
+                    return;
+                }
+
+                // Inachagua picha moja nasibu (randomly) kila ukurasa unapofunguliwa
+                const randomIndex = Math.floor(Math.random() * artworks.length);
+                const art = artworks[randomIndex];
+
+                // Inaandaa muonekano wa picha bila kadi ya giza (bila frame) na title kwa herufi kubwa upande wa kushoto
+                container.innerHTML = `
+                    <div class="showcase-card">
+                        <img src="${art.image_url}" alt="${art.title || 'Artwork'}" onclick="zoomImage(this)">
+                        <h4>${art.title || 'Untitled Artwork'}</h4>
+                    </div>
+                `;
+
+            } catch (err) {
+                console.error("Error loading featured artwork:", err);
+                container.innerHTML = '<p style="color:#777; font-size:13px; text-align:center;">Could not load featured artwork.</p>';
+            }
+        }
+
+        function zoomImage(imgElement) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImg");
+            const modalCaption = document.getElementById("modalCaption");
+
+            modal.style.display = "flex";
+            modalImg.src = imgElement.src;
+            modalCaption.textContent = imgElement.alt;
+        }
+
+        function closeZoom() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+
+        // Ikifunguka tu page, inatafuta picha moja kutoka database
+        document.addEventListener("DOMContentLoaded", loadFeaturedArtwork);
+    </script>
+
+</body>
+</html>

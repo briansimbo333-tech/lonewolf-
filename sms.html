@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LONEWOLF ART GALLERY - Client Messages</title>
+    
+    <!-- FONT AWESOME ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SUPABASE JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* LUXURY DARK THEME */
+        body {
+            background-color: #0a0a0c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* HEADER & NAVIGATION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d3748;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+        }
+
+        .logo-title {
+            color: #e2e8f0;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            color: #a0aec0;
+            text-decoration: none;
+            margin-left: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            color: #d4af37;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 4px;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            color: #f7fafc;
+            font-size: 22px;
+            margin: 0 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .page-header p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* MESSAGES CONTAINER */
+        .messages-container {
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* INDIVIDUAL MESSAGE CARD */
+        .message-card {
+            background-color: #14171d;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: border-color 0.3s ease;
+        }
+
+        .message-card:hover {
+            border-color: #d4af37;
+        }
+
+        .message-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #1a202c;
+            padding-bottom: 8px;
+        }
+
+        .client-info h4 {
+            color: #d4af37;
+            font-size: 16px;
+            margin: 0 0 3px 0;
+        }
+
+        .client-info span {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .message-date {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .message-body {
+            color: #e2e8f0;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .message-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* REPLY VIA WHATSAPP BUTTON */
+        .btn-reply {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #25D366;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-reply:hover {
+            background-color: #1eb954;
+        }
+
+        .no-messages {
+            text-align: center;
+            color: #a0aec0;
+            font-size: 14px;
+            padding: 50px 0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #4a5568;
+            font-size: 12px;
+            border-top: 1px solid #1a202c;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION HEADER -->
+    <header>
+        <div class="logo-title">LONEWOLF ADMIN</div>
+        <nav>
+            <a href="admin.html">Upload Art</a>
+            <a href="sms.html" class="active">Messages</a>
+            <a href="gallery.html" target="_blank">View Gallery</a>
+        </nav>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h2>Client Inquiries</h2>
+        <p>Manage all customer messages and commission requests sent from the gallery.</p>
+    </div>
+
+    <!-- MESSAGES LIST CONTAINER -->
+    <div class="messages-container" id="messagesContainer">
+        <div class="no-messages"><i class="fa-solid fa-spinner fa-spin"></i> Loading messages...</div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Lonewolf Art Gallery. Admin Panel.</p>
+    </footer>
+
+    <!-- JAVASCRIPT SECTION -->
+    <script>
+        // SUPABASE CREDENTIALS
+        const SUPABASE_URL = "https://uywloserbehvqzaezcjs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_86S_JV6gy_AOpUxhlFd_ow_AhW5xj6a";
+
+        // INITIALIZE SUPABASE CLIENT
+        let supabaseClient = null;
+        if (typeof supabase !== "undefined") {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        async function loadClientMessages() {
+            const container = document.getElementById("messagesContainer");
+            
+            if (!supabaseClient) {
+                container.innerHTML = '<div class="no-messages">Error connecting to Supabase SDK.</div>';
+                return;
+            }
+
+            try {
+                // Tunachukua taarifa kutoka kwenye table ya 'enquiries' kuanzia ya hivi karibuni kwenda ya zamani
+                const { data: messages, error } = await supabaseClient
+                    .from('enquiries')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error("Supabase Error:", error);
+                    container.innerHTML = '<div class="no-messages">Unable to load messages right now. Make sure the ' + 'enquiries' + ' table exists in Supabase.</div>';
+                    return;
+                }
+
+                if (!messages || messages.length === 0) {
+                    container.innerHTML = '<div class="no-messages">No client messages or inquiries received yet.</div>';
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                messages.forEach(msg => {
+                    // Kutengeneza tarehe iliyotulia vizuri
+                    let formattedDate = "Recent";
+                    if (msg.created_at) {
+                        let dateObj = new Date(msg.created_at);
+                        formattedDate = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    // Link ya kutuma email moja kwa moja au unaweza kuweka ya simu kama wanajaza namba
+                    const emailLink = `mailto:${msg.email}?subject=RE:%20LoneWolf%20Art%20Gallery%20Inquiry`;
+
+                    const messageCard = `
+                        <div class="message-card">
+                            <div class="message-header-row">
+                                <div class="client-info">
+                                    <h4>${msg.name || 'Anonymous'}</h4>
+                                    <span><i class="fa-solid fa-envelope"></i> ${msg.email || 'No email provided'}</span>
+                                </div>
+                                <div class="message-date">${formattedDate}</div>
+                            </div>
+                            <div class="message-body">
+                                "${msg.message || ''}"
+                            </div>
+                            <div class="message-actions">
+                                <a href="${emailLink}" class="btn-reply">
+                                    <i class="fa-solid fa-reply"></i> Reply via Email
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += messageCard;
+                });
+
+            } catch (err) {
+                console.error("Error fetching messages:", err);
+                container.innerHTML = '<div class="no-messages">No messages found or table does not exist yet.</div>';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadClientMessages);
+    </script>
+
+</body>
+</html>

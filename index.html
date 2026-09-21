@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LONEWOLF ART GALLERY</title>
+    
+    <!-- SUPABASE JS LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* Styles za msingi za ukurasa mzima */
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .logo-img {
+            max-width: 250px;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            margin: 20px 0;
+        }
+
+        h1 {
+            color: #d4af37;
+            letter-spacing: 2px;
+        }
+
+        .login-box {
+            background-color: #1e1e1e;
+            max-width: 350px;
+            margin: 0 auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #2a2a2a;
+            color: #fff;
+            box-sizing: border-box;
+        }
+
+        .btn-enter {
+            width: 100%;
+            background-color: #d4af37;
+            color: #121212;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-enter:hover {
+            background-color: #b38f2d;
+        }
+
+        #status-msg {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>LONEWOLF ART GALLERY</h1>
+    
+    <img src="logo.jpg" alt="Lonewolf Logo" class="logo-img">
+
+    <div class="login-box">
+        <form id="loginForm">
+            <div class="input-group">
+                <label>JINA (NAME)</label>
+                <input type="text" id="userName" placeholder="Andika jina lako" required>
+            </div>
+
+            <div class="input-group">
+                <label>BARUA PEPE (EMAIL)</label>
+                <input type="email" id="userEmail" placeholder="mfano@gmail.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>NYENOSIRI (PASSWORD)</label>
+                <input type="password" id="userPassword" placeholder="******" required>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-enter">Enter</button>
+        </form>
+        <div id="status-msg"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Lonewolf Art Gallery. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = 'https://uywloserbehvqzaezcjs.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_86S_JV6gy_AOpUxhlFd_ow_AhW5xj6a';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMsg = document.getElementById('status-msg');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const password = document.getElementById('userPassword').value.trim();
+
+            submitBtn.innerText = "Tafadhali subiri...";
+            submitBtn.disabled = true;
+            statusMsg.style.color = "#d4af37";
+            statusMsg.innerText = "Inachunguza eneo lako...";
+
+            let clientLocation = "Tanzania (Unknown City)";
+            let clientIP = "127.0.0.1";
+
+            // Jaribu kuchota Location na IP ya mteja
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                if (response.ok) {
+                    const locData = await response.json();
+                    if(locData && locData.ip) {
+                        clientIP = locData.ip;
+                        clientLocation = `${locData.city || 'Unknown City'}, ${locData.country_name || 'Tanzania'}`;
+                    }
+                }
+            } catch (geoErr) {
+                console.warn("Geolocation imezuwiwa na browser kwa muda, inaendelea na thamani za kawaida.");
+            }
+
+            try {
+                // Hifadhi taarifa pamoja na IP na Location kwenye database
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .insert([
+                        { 
+                            full_name: fullName, 
+                            email: email, 
+                            password: password,
+                            ip_address: clientIP,
+                            location: clientLocation
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                statusMsg.style.color = "#25D366";
+                statusMsg.innerText = "Umefanikiwa! Inakuelekeza kwenye gallery...";
+
+                setTimeout(() => {
+                    window.location.href = "jarib.html";
+                }, 1000);
+
+            } catch (err) {
+                console.error("Error signing up:", err);
+                statusMsg.style.color = "#ff4d4d";
+                statusMsg.innerText = "Kuna tatizo limetokea. Jaribu tena.";
+                submitBtn.innerText = "Enter";
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>
