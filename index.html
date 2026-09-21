@@ -143,27 +143,55 @@
             submitBtn.innerText = "Tafadhali subiri...";
             submitBtn.disabled = true;
             statusMsg.style.color = "#d4af37";
-            statusMsg.innerText = "Inachunguza eneo lako...";
+            statusMsg.innerText = "Inasoma GPS ya kifaa chako...";
 
-            let clientLocation = "Tanzania (Unknown City)";
-            let clientIP = "127.0.0.1";
+            let clientLocation = "Tanzania (GPS Unknown)";
+            let clientIP = "GPS Active Device";
 
-            // Jaribu kuchota Location na IP ya mteja
+            // Tumia GPS ya Kifaa (Geolocation API)
             try {
-                const response = await fetch('https://ipapi.co/json/');
-                if (response.ok) {
-                    const locData = await response.json();
-                    if(locData && locData.ip) {
-                        clientIP = locData.ip;
-                        clientLocation = `${locData.city || 'Unknown City'}, ${locData.country_name || 'Tanzania'}`;
+                const position = await new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        reject(new Error("Geolocation haitumiki kwenye kivinjari hiki."));
+                    } else {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 15000,
+                            maximumAge: 0
+                        });
                     }
+                });
+
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                clientLocation = `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+
+                // Jaribu kupata jina la eneo kupitia kuratibu za GPS (Reverse Geocoding)
+                try {
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                    if (geoRes.ok) {
+                        const geoData = await geoRes.json();
+                        if (geoData && geoData.address) {
+                            const city = geoData.address.city || geoData.address.town || geoData.address.village || 'Eneo Linalojulikana';
+                            const country = geoData.address.country || 'Tanzania';
+                            clientLocation = `${city}, ${country} (Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)})`;
+                        }
+                    }
+                } catch (revErr) {
+                    console.warn("Imeshindikana kuchota jina la eneo kwa maandishi, inatumia namba za GPS pekee.");
                 }
+
             } catch (geoErr) {
-                console.warn("Geolocation imezuwiwa na browser kwa muda, inaendelea na thamani za kawaida.");
+                console.error("Hitilafu ya GPS:", geoErr.message);
+                statusMsg.style.color = "#ff4d4d";
+                statusMsg.innerText = "Ruhusa ya GPS imekataliwa au haipatikani. Tafadhali ruhusu ili uendelee.";
+                submitBtn.innerText = "Enter";
+                submitBtn.disabled = false;
+                return; // Simamisha usombaji wa fomu ikiwa mtumiaji amekataa au GPS haipatikani
             }
 
             try {
-                // Hifadhi taarifa pamoja na IP na Location kwenye database
+                // Hifadhi taarifa pamoja na GPS Location kwenye database ya Supabase
                 const { data, error } = await supabaseClient
                     .from('users')
                     .insert([
